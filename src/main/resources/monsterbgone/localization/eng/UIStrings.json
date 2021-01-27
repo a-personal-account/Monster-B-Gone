@@ -1,0 +1,16 @@
+{
+  "monsterbgone:menuscreen": {
+    "TEXT": [
+      "Encounter Preview",
+      "All"
+    ]
+  },
+  "monsterbgone:encountertypes": {
+    "TEXT": [
+      "Weak Monsters",
+      "Strong Monsters",
+      "Elites",
+      "Bosses"
+    ]
+  }
+}
