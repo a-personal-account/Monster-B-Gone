@@ -16,6 +16,7 @@ import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.monsters.MonsterInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.Sys;
 
 import java.util.*;
 
@@ -38,6 +39,18 @@ public class MonsterBGone implements
     public static final int ENCOUNTER_TYPES = 4;
 
     private static Properties properties = new Properties();
+    private static SpireConfig config;
+    private static void newConfig() {
+        try {
+            config = new SpireConfig(MOD_ID, "config", properties);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public MonsterBGone() {
+        newConfig();
+    }
 
     @Override
     public void receivePostInitialize() {
@@ -102,7 +115,7 @@ public class MonsterBGone implements
         }
 
         //the encounter itself with its corresponding config
-        if (!mapArray[mapindex].containsKey(encounterID)) {
+        if (!mapArray[mapindex].containsKey(encounterID) || !config) {
             mapArray[mapindex].put(encounterID, config);
         }
     }
@@ -182,27 +195,8 @@ public class MonsterBGone implements
         }
     }
 
-    public static void clearConfigData() {
-        try {
-            SpireConfig config = new SpireConfig(MOD_ID, "config", properties);
-            String base = makeID("");
-
-            for (Map.Entry<Object, Object> tmp : ((Properties) ReflectionHacks.getPrivate(config, SpireConfig.class, "properties")).entrySet()) {
-                if (tmp.getKey() instanceof String && ((String) tmp.getKey()).startsWith(base)) {
-                    config.remove((String)tmp.getKey());
-                }
-            }
-            config.save();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private static void loadConfigData() {
         try {
-            SpireConfig config = new SpireConfig(MOD_ID, "config", properties);
-            config.load();
-
             String base = makeID("");
             for (Map.Entry<Object, Object> tmp : ((Properties) ReflectionHacks.getPrivate(config, SpireConfig.class, "properties")).entrySet()) {
                 if (tmp.getKey() instanceof String && ((String) tmp.getKey()).startsWith(base)) {
@@ -221,14 +215,14 @@ public class MonsterBGone implements
             }
         } catch (Exception e) {
             e.printStackTrace();
+            newConfig();
             saveConfigData();
         }
     }
 
     public static void saveConfigData() {
         try {
-            SpireConfig config = new SpireConfig(MOD_ID, "config", properties);
-
+            config.clear();
             for(Map.Entry<String, Map<String, Map<String, Boolean>[]>> entry0 : vanillaActCustomMonsterConfig.entrySet()) {
                 for(Map.Entry<String, Map<String, Boolean>[]> entry1 : entry0.getValue().entrySet()) {
                     for(int i = 0; i < entry1.getValue().length; i++) {
@@ -249,6 +243,7 @@ public class MonsterBGone implements
             config.save();
         } catch (Exception e) {
             e.printStackTrace();
+            newConfig();
         }
     }
 }
